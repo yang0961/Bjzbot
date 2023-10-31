@@ -76,7 +76,7 @@ def senderId(self):
 @property
 @_catch_error(False)
 def isUsefulMsg(self):
-    if self.CurrentPacket.EventData.MsgBody is None and self.CurrentPacket.EventData.MsgHead is None:
+    if self.CurrentPacket.EventData.MsgBody is None or self.CurrentPacket.EventData.MsgHead is None:
         return False
     return True
 
