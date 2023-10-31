@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-from log import logger
+# coding: utf-8
+# @Author: 小杨大帅哥
 from typing import Callable, Any
-from config import con_json
-from event import Event
-from message import Message
+from ..config import con_json
+from ..event import Event
+from ..message import Message
 from abc import abstractmethod
 
 
@@ -134,7 +134,7 @@ class Receiver(Event):
         raise NotImplementedError
 
 
-from service.core import load_function
+from .core import load_function
 
 
 Receiver = load_function(Receiver)

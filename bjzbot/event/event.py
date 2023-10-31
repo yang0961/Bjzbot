@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+# @Author: 小杨大帅哥
 from abc import abstractmethod
 import logging
 from typing import Callable, Any
-from sender import Account
-from message import Message
+from ..message import Message
 import asyncio
 
 

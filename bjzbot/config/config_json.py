@@ -2,7 +2,7 @@
 # @Author: 小杨大帅哥
 import sys
 import yaml
-from log import logger
+from ..log import logger
 from pathlib import Path
 
 logger.debug("正在初始化中, 请稍后")

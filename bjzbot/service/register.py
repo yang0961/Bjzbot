@@ -2,13 +2,12 @@
 # @Author: 小杨大帅哥
 import asyncio
 import sys
-
-from sender import Account
-from config import con_json
-from log import logger
-from service.receive import rgt, Receiver
+from ..sender import Account
+from ..config import con_json
+from ..log import logger
+from ..service.receive import rgt, Receiver
 from typing import Callable
-from message import Message
+from ..message import Message
 from abc import abstractmethod
 
 rgt: Receiver

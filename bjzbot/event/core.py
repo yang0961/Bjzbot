@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+# @Author: 小杨大帅哥
 
 import traceback
 from threading import Thread
 import nest_asyncio
 from typing import Callable, Any
-from sender import account
-from message import Message
-from log import logger
+from ..sender import account
+from ..message import Message
+from ..log import logger
 import asyncio
 
 nest_asyncio.apply(asyncio.get_event_loop())

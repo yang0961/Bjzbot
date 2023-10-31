@@ -3,11 +3,11 @@
 import asyncio
 import json
 from typing import List, Dict, Any, AsyncIterator
-from config import con_json
-from exception import SendError
+from ..config import con_json
+from ..exception import SendError
 import traceback
-from log import logger
-from sender.const import *
+from ..log import logger
+from ..sender.const import *
 from pathlib import Path
 import aiohttp
 
@@ -78,14 +78,12 @@ class Account(object):
                     if not isinstance(ele, int):
                         raise ValueError("照片宽高必须为整型")
         if (res_vars := self.__verify_vars(file_path, file_url, file_base64))[1] == list:
-            print(res_vars[0].values())
             files = list(res_vars[0].values())[0]
             if width_height is not None:
                 if len(files) != len(width_height):
                     raise ValueError("图片数量和宽高数量不一致")
             file_index = 0
             for _file in files:
-                print(_file, _file)
                 self.__send(name="照片", error_tips="部分照片发送失败", send_body="FileId", _type="image",
                             send_type="Images", data={list(res_vars[0].keys())[0]: _file},
                             image_w_h=width_height[file_index] if width_height is not None else None)
@@ -204,6 +202,11 @@ class Account(object):
         return await self.__to(friend_id, 1)
 
     async def to_private(self, private_id: int, group_id: int):
+        """
+        推送给私聊
+        :param private_id: 私聊 QQUin
+        :param group_id: 私聊对象与你的共同群
+        """
         logger.info("推送私聊")
         self.__send_body['CgiRequest']['GroupCode'] = group_id
 
@@ -286,7 +289,6 @@ class Account(object):
                 request = session.post
                 if method.lower() == 'get':
                     request = session.get
-                print("kewags", kwargs)
                 async with request(*args, **kwargs) as response:
                     result = await response.json()
                     if not p_error:

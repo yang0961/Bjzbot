@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+# @Author: 小杨大帅哥
+
 import nest_asyncio
 import asyncio
 import functools
@@ -6,11 +8,11 @@ import json
 from log import logger
 import random
 import traceback
-from config import con_json
+from ..config import con_json
 from websockets.exceptions import ConnectionClosedError as ws_ConnectionClosedError
 from typing import Callable, Any
-from message import Message
-from sender import Account
+from ..message import Message
+from ..sender import Account
 import websockets
 nest_asyncio.apply(asyncio.get_event_loop())
 
@@ -111,7 +113,7 @@ def revoke_message_register(self,
                             isDivision: bool = False,
                             allow_other_receive: bool = True):
     def judge_msg(msg):
-        if msg['isRevokeMsg'] and msg['revokmsgid'] is not None:
+        if msg.CurrentPacket.EventData.EventName == "ON_EVENT_GROUP_MSG_REVOKE":
             return True
         return False
 
@@ -125,9 +127,11 @@ def revoke_message_register(self,
 def group_changed_register(self,
                            allow_other_receive: bool = True):
     def judge_msg(msg):
-        if msg['isGroup'] and msg['data']['type'] == 10000:
-            if '加入了群聊' in msg['data']['content'] or '出了群聊' in msg['data']['content']:
-                return True
+        if not msg.isGroup:
+            return False
+        if msg.CurrentPacket.EventData.EventName == "ON_EVENT_GROUP_EXIT" or\
+            msg.CurrentPacket.EventData.EventName == "ON_EVENT_GROUP_JOIN":
+            return True
         return False
 
     return self._processing_message_func(isGroup=True,
