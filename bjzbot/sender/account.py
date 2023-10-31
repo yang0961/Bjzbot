@@ -78,12 +78,14 @@ class Account(object):
                     if not isinstance(ele, int):
                         raise ValueError("照片宽高必须为整型")
         if (res_vars := self.__verify_vars(file_path, file_url, file_base64))[1] == list:
+            print(res_vars[0].values())
             files = list(res_vars[0].values())[0]
             if width_height is not None:
                 if len(files) != len(width_height):
                     raise ValueError("图片数量和宽高数量不一致")
             file_index = 0
             for _file in files:
+                print(_file, _file)
                 self.__send(name="照片", error_tips="部分照片发送失败", send_body="FileId", _type="image",
                             send_type="Images", data={list(res_vars[0].keys())[0]: _file},
                             image_w_h=width_height[file_index] if width_height is not None else None)
@@ -233,8 +235,8 @@ class Account(object):
                     "LastBuffer": LastBuffer
                 }
             }
-            result: dict = await asyncio.wait_for(asyncio.create_task(
-                self.__request_http("POST", url=self.__send_url, headers=self.__headers, json=_send_b)
+            result: dict = await asyncio.wait_for(
+                self.__request_http("POST", url=self.__send_url, headers=self.__headers, json=_send_b
             ), 10)
             if result["ResponseData"]["MemberLists"]:
                 LastBuffer = result["ResponseData"]["LastBuffer"]
@@ -255,8 +257,8 @@ class Account(object):
                     "LastUin": 0
                 }
             }
-            result: dict = await asyncio.wait_for(asyncio.create_task(
-                self.__request_http("POST", url=self.__send_url, headers=self.__headers, json=_send_b)
+            result: dict = await asyncio.wait_for(
+                self.__request_http("POST", url=self.__send_url, headers=self.__headers, json=_send_b
             ), 10)
             yield result["ResponseData"]
             break
@@ -264,26 +266,27 @@ class Account(object):
     @_catch_error(None)
     async def get_self_info(self) -> dict:
         logger.info("获取框架信息")
-        return (await asyncio.wait_for(asyncio.create_task(
+        return (await asyncio.wait_for(
             self.__request_http("POST", p_error=False, url=self.__send_url, headers=self.__headers, json={
                 "CgiCmd": "ClusterInfo",
                 "CgiRequest": {}
-            })), 10))['ResponseData']
+            }), 10))['ResponseData']
 
     async def _login(self) -> dict:
-        return (await asyncio.wait_for(asyncio.create_task(
+        return (await asyncio.wait_for(
             self.__request_http("POST", p_error=False, url=self.__send_url, headers=self.__headers, json={
                 "CgiCmd": "ClusterInfo",
                 "CgiRequest": {}
-            })), 10))
+            }), 10))
 
     async def __request_http(self, method: str, *args, p_error=True, **kwargs):
         try:
             async with aiohttp.ClientSession(loop=asyncio.get_running_loop(),
-                                             timeout=aiohttp.ClientTimeout(total=10)) as session:
+                                             ) as session:
                 request = session.post
                 if method.lower() == 'get':
                     request = session.get
+                print("kewags", kwargs)
                 async with request(*args, **kwargs) as response:
                     result = await response.json()
                     if not p_error:
@@ -339,7 +342,7 @@ class Account(object):
         if len(self.__tasks) != 0:
             # 原本应该直接将异步任务一起运行, 但是接口不允许并发请求, 因此改为一个一个请求接口
             for task in self.__tasks:
-                await asyncio.wait_for(asyncio.create_task(task()), 10)
+                await asyncio.wait_for(task(), 10)
         if self.__send_body["CgiCmd"] == "MessageSvc.PbSendMsg":
             self.__url = self.__send_url
             if not self.__send_body['CgiRequest']['Content'] and \
@@ -355,11 +358,11 @@ class Account(object):
         elif self.__send_body["CgiCmd"] == "PicUp.DataUp":
             self.__url = self.__upload_url
 
-        if (resu := await asyncio.wait_for(asyncio.create_task(self.__request_http("POST",
-                                                                                   url=self.__url,
-                                                                                   headers=self.__headers,
-                                                                                   json=self.__send_body)),
-                                           10)) is None:
+        if (resu := await asyncio.wait_for(self.__request_http("POST",
+                                                               url=self.__url,
+                                                               headers=self.__headers,
+                                                               json=self.__send_body),
+            10)) is None:
             self.__clear_()
         # 清空消息内容
         self.__clear_()

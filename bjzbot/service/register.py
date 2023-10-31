@@ -1,12 +1,9 @@
 # coding: utf-8
 # @Author: 小杨大帅哥
 import asyncio
-import json
-import os.path
 import sys
-from pathlib import Path
+
 from sender import Account
-import yaml
 from config import con_json
 from log import logger
 from service.receive import rgt, Receiver
@@ -19,8 +16,6 @@ rgt: Receiver
 
 class Register(object):
     def __init__(self):
-        logger.debug("正在初始化中, 请稍后")
-        self.__setting()
         self.__isLogin()
 
     @abstractmethod
@@ -105,61 +100,18 @@ class Register(object):
         return rgt.run(print_msg=print_msg,
                        thread_proces_msg=thread_proces_msg)
 
-
-
-    @property
-    def __config(self):
-        config_json = """
-# BjzBot配置
-BjzBot:
-  # OPQ登录中的 QQ, 必填项, 填错程序将会报错
-  QQ: 
-  # OPQ中设置的 host, 可选项, 若不填写, 默认为 127.0.0.1
-  host: 127.0.0.1
-  # OPQ中设置的 port, 可选项, 若不填写, 默认为 8086
-  port: 8086
-        """
-        return config_json
-
-    def __setting(self):
-        if not (c_yaml := Path("config.yml")).exists():
-            with c_yaml.open(mode="w", encoding="utf-8") as f:
-                f.write(self.__config)
-            logger.debug("请先填写配置文件 config.yml, 程序退出")
-            sys.exit(0)
-        yaml_data = yaml.load(c_yaml.open(mode="r", encoding="utf-8").read(),
-                              Loader=yaml.FullLoader)["BjzBot"]
-        if yaml_data["QQ"] is None:
-            logger.error("请在config.yaml填写 QQ")
-            raise ValueError("请在config.yaml填写 QQ")
-        config = Path(str(Path(__file__).parent.parent) + r"\config\settings.json")
-        with config.open(mode='w', encoding="UTF-8") as file:
-            file.write(json.dumps(
-                {
-                    "QQ": yaml_data["QQ"],
-                    "host": yaml_data["host"] if yaml_data["host"] else "127.0.0.1",
-                    "port": yaml_data["port"] if yaml_data["port"] else 8086,
-                },
-                ensure_ascii=False, indent=4
-            ))
-            logger.debug("初始化完成")
-            logger.debug(f"创建 websocket实例 ws://{yaml_data['host']}:{yaml_data['port']}/wx")
-            logger.debug("连接 OPQ中, 请等待")
-
     def __isLogin(self):
         async def _login():
             logger.debug("正在校验是否已登录...")
             accu = Account()
             res = await accu._login()
-            while True:
-                if res["ResponseData"]:
-                    if [True for ele in res["ResponseData"]["QQUsers"] if ele["Uin"] == con_json.QQ][0]:
-                        break
-                logger.error('网络断开或不可用, 请检查网络')
-                logger.error(f'{res["CgiBaseResponse"]["ErrMsg"]}')
-                logger.debug("正在重连中...")
-                await asyncio.sleep(2)
-            logger.debug("账号在线")
-        asyncio.get_event_loop().run_until_complete(_login())
-
+            if (_data := res["CgiBaseResponse"])["Ret"] == 0:
+                logger.debug("账号在线")
+                return True
+            return False
+        if not asyncio.get_event_loop().run_until_complete(_login()):
+            logger.debug("账号未登录")
+            url = f"http://{con_json.host}:{con_json.port}/v1/login/getqrcode?qq={con_json.QQ}&devicename=QQ_Windows"
+            logger.debug(f"请先点击该网址登录账号, 在 OPQ确认登录后再次启动程序 \nLogin url: {url}")
+            sys.exit(0)
 
