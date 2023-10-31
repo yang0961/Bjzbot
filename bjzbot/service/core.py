@@ -6,6 +6,7 @@ import json
 from log import logger
 import random
 import traceback
+from config import con_json
 from websockets.exceptions import ConnectionClosedError as ws_ConnectionClosedError
 from typing import Callable, Any
 from message import Message
@@ -13,9 +14,6 @@ from sender import Account
 import websockets
 nest_asyncio.apply(asyncio.get_event_loop())
 
-# logger = logging.getLogger('websockets')
-# logger.setLevel(logging.ERROR)
-# logger.addHandler(logging.NullHandler())
 
 def load_function(cls):
     cls._receive_msg = _receive_msg
@@ -32,11 +30,11 @@ def load_function(cls):
 async def _receive_msg(self):
     """有消息的时候，通知分发器分发消息"""
     try:
-        logger.debug(f"初始化完成")
         async with websockets.connect(f"ws://{self._host_port}/ws") as websocket:
             if self._first_start:
                 await asyncio.sleep(2.8)
                 logger.debug(f"OPQ连接成功, 开始接收消息")
+                logger.debug(f"登录账号为 Account <{con_json.QQ}>")
                 await asyncio.sleep(0.2)
             while True:
                 str_message = await websocket.recv()
@@ -60,7 +58,7 @@ async def _receive_msg(self):
         if self._retry:
             return await self._receive_msg()
         logger.error(f"host或者port配置错误, 或OPQ未开启, 造成远程计算机拒绝网络连接")
-        raise ConnectionRefusedError(f"host或者port配置错误, 或OPQ未开启, 造成远程计算机拒绝网络连接")
+        raise ConnectionRefusedError(f"host或者port配置错误, 或 OPQ未开启, 造成远程计算机拒绝网络连接")
     except:
         traceback.print_exc()
 

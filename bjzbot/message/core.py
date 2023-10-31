@@ -15,6 +15,8 @@ def load_fn(msg):
     msg.getVoice = getVoice
     msg.is_at = is_at
     msg.getReplyParams = getReplyParams
+    msg.isUsefulMsg = isUsefulMsg
+    msg.getGroupInfo = getGroupInfo
     return msg
 
 
@@ -25,9 +27,7 @@ def _catch_error(_return=None):
                 return func(*args, **kwargs)
             except:
                 return _return
-
         return __catch
-
     return _catch
 
 
@@ -55,9 +55,9 @@ def botAccount(self):
 @property
 @_catch_error(None)
 def text(self):
-    if (msg := self.CurrentPacket.EventData.MsgBody) is None:
+    if not self.isUsefulMsg:
         return None
-    return msg.Content
+    return self.CurrentPacket.EventData.MsgBody.Content
 
 
 @property
@@ -73,13 +73,19 @@ def groupId(self):
 def senderId(self):
     return int(self.CurrentPacket.EventData.MsgHead.SenderUin)
 
+@property
+@_catch_error(False)
+def isUsefulMsg(self):
+    if self.CurrentPacket.EventData.MsgBody is None and self.CurrentPacket.EventData.MsgHead is None:
+        return False
+    return True
 
 @property
 @_catch_error(False)
 def havingImage(self):
-    if (msg := self.CurrentPacket.EventData.MsgBody) is None:
+    if not self.isUsefulMsg:
         return False
-    return isinstance(msg.Images, list)
+    return isinstance(self.CurrentPacket.EventData.MsgBody.Images, list)
 
 
 @property
@@ -93,14 +99,23 @@ def getImage(self):
 @property
 @_catch_error(None)
 def getVideo(self):
-    if (msg := self.CurrentPacket.EventData.MsgBody) is None:
+    if not self.isUsefulMsg:
         return None
-    return msg.Video
+    return self.CurrentPacket.EventData.MsgBody.Video
 
 
 @property
 @_catch_error(None)
+def getGroupInfo(self):
+    if not self.isUsefulMsg and not self.isGroup:
+        return None
+    return self.CurrentPacket.EventData.MsgHead.GroupInfo
+
+@property
+@_catch_error(None)
 def getReplyParams(self):
+    if not isUsefulMsg:
+        return None
     if (msg := self.CurrentPacket.EventData.MsgHead) is None:
         return None
     return {"msg_seq": int(msg.MsgSeq), "msg_time": int(msg.MsgTime), "msg_uid": int(msg.MsgUid)}
@@ -109,16 +124,16 @@ def getReplyParams(self):
 @property
 @_catch_error(None)
 def getVoice(self):
-    if (msg := self.CurrentPacket.EventData.MsgBody) is None:
+    if not self.isUsefulMsg:
         return None
-    return msg.Voice
+    return self.CurrentPacket.EventData.MsgBody.Voice
 
 
 @_catch_error(False)
 def is_at(self, include_at_all=True):
-    if (msg := self.CurrentPacket.EventData.MsgBody) is None:
+    if not self.isUsefulMsg:
         return False
-    if msg.AtUinLists is None:
+    if (msg := self.CurrentPacket.EventData.MsgBody).AtUinLists is None:
         return False
     if not include_at_all:
         return len(set([ele.Uin for ele in msg.AtUinLists if str(ele.Uin) == str(self.CurrentQQ)])) == 1

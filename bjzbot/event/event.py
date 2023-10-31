@@ -21,6 +21,7 @@ class Event(object):
         super(Event, self).__init__()
         self._message = None
         self._thread_flag = False
+        self._network_disconnection = False
         self._show_msg = True
         self._logger: logging = logging.getLogger()
 

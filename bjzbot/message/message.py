@@ -150,3 +150,24 @@ class Message(dict):
                  else: return None
         """
         raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def getGroupInfo(self) -> dict or None:
+        """
+        获取群消息的群概况
+        :return: return dict
+                 else: return None
+        """
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def isUsefulMsg(self) -> bool:
+        """
+        消息是否同时包含 MsgHead 和 MsgBody 两部分
+        :return: return bool
+        """
+        raise NotImplementedError()
+
+
