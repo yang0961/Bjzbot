@@ -6,7 +6,7 @@ from sender import Account
 res = Register()
 
 
-@res.message_register(isDivision=False)
+@res.message_register(isDivision=True, isGroup=True)
 async def _(acc: Account, msg: Message):
     if not msg.isUsefulMsg:
         return None
