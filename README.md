@@ -12,11 +12,9 @@ from sender import Account
 res = Register()
 
 
-@res.message_register(isDivision=False)
+@res.message_register(isDivision=True, isGroup=True)
 async def _(acc: Account, msg: Message):
     if not msg.isUsefulMsg:
-        return None
-    if not msg.isGroup:
         return None
     # 发送文字 + 照片 给群组
     await acc.send_content("你好").send_image("demo.png").to_group(msg.groupId)
