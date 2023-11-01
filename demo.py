@@ -10,8 +10,6 @@ res = Register()
 async def _(acc: Account, msg: Message):
     if not msg.isUsefulMsg:
         return None
-    if not msg.isGroup:
-        return None
     # 发送文字 + 照片 给群组
     await acc.send_content("你好").send_image("demo.png").to_group(msg.groupId)
     # 群内 at对方
