@@ -10,6 +10,7 @@ from ..log import logger
 from ..sender.const import *
 from pathlib import Path
 import aiohttp
+from aiohttp.client_exceptions import ClientConnectorError as ah_ClientConnectorError
 
 
 def _catch_error(_return=None, fun=None):
@@ -303,6 +304,9 @@ class Account(object):
                     return result
         except json.decoder.JSONDecodeError:
             logger.error(f"消息发送失败, 请确认 OPQ是否完整")
+        except (ah_ClientConnectorError, ConnectionRefusedError) as er:
+            logger.error(f"host或者port配置错误, 或OPQ未开启, 造成远程计算机拒绝网络连接")
+            raise ConnectionRefusedError(f"host或者port配置错误, 或 OPQ未开启, {er}")
         except:
             logger.error(f"发送失败, 返回结果为-> \n{traceback.format_exc()}")
 
