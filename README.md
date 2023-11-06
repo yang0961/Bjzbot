@@ -6,9 +6,8 @@
 ```py
 # coding: utf-8
 # @Author: 小杨大帅哥
-from service import Register
-from message import Message
-from sender import Account
+from bjzbot import Register, Message, Account
+
 res = Register()
 
 
