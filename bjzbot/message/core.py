@@ -118,7 +118,9 @@ def getReplyParams(self):
         return None
     if (msg := self.CurrentPacket.EventData.MsgHead) is None:
         return None
-    return {"msg_seq": int(msg.MsgSeq), "msg_time": int(msg.MsgTime), "msg_uid": int(msg.MsgUid)}
+    return {"msg_seq": int(msg.MsgSeq), "msg_time": int(msg.MsgTime),
+            "msg_uid": int(msg.MsgUid), "replay_sender_id": int(msg.SenderUin)}
+
 
 
 @property

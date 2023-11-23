@@ -63,7 +63,7 @@ class Account(object):
                    file_base64: str or List[str] = None,
                    width_height: List[List[int]] = None):
         """
-         照片可以发送多张, 即可同时多次.send_image
+         照片可以发送多张, 即可同时多次.send_image或者传入列表
         :param file_path: 图片路径
         :param file_url: 图片链接
         :param file_base64: 图片 base64
@@ -145,8 +145,10 @@ class Account(object):
                 raise SendError("send_group_file只能用于群聊")
             self.__send_body['CgiCmd'] = "PicUp.DataUp"
             for _item in self.__send_body['CgiRequest']:
-                self.__send_body['CgiRequest'] = {"CommandId": GROUP_FILE_COMMAND_ID, "FileName": file_name,
-                                                  "FilePath": file_path, "Notify": notify,
+                self.__send_body['CgiRequest'] = {"CommandId": GROUP_FILE_COMMAND_ID,
+                                                  "FileName": file_name,
+                                                  "FilePath": file_path,
+                                                  "Notify": notify,
                                                   "ToUin": self.__send_body['CgiRequest']["ToUin"]}
 
         self.__tasks.append(_group_file)
