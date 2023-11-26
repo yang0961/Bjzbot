@@ -113,7 +113,7 @@ def revoke_message_register(self,
                             isDivision: bool = False,
                             allow_other_receive: bool = True):
     def judge_msg(msg):
-        if msg.CurrentPacket.EventData.EventName == "ON_EVENT_GROUP_MSG_REVOKE":
+        if "REVOKE" in msg.CurrentPacket.EventData.EventName:
             return True
         return False
 
